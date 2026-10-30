@@ -59,7 +59,7 @@ void Q::add(P x) {
     nvo->nx = nullptr; 
 
     if (emp()) {
-        hd = nvo;       // Si esta va Si esta vaccia, head y tail apuntan al nuevo nodo
+        hd = nvo;     
         tl = nvo;
     } else {
         tl->nx = nvo;  
@@ -104,6 +104,23 @@ void Sim::cap() {
     }
 }
 
+int Q::qtm() {
+    if (emp()) return 1; 
+
+    int s = 0; 
+    int c = 0; 
+    Nd* act = hd;
+    
+    while (act != nullptr) {
+        s += act->p.te;
+        c++;
+        act = act->nx;
+    }
+    
+    int q = s / c; 
+    return (q > 0) ? q : 1; 
+}
+
 void Sim::fifo() {
     cout << "\nEJECUCIÓN FIFO\n" << endl;
     Q aux = qb; 
@@ -112,13 +129,16 @@ void Sim::fifo() {
     int n = 0;  
 
     while (!aux.emp()) {
+
         P p = aux.pop();
+        int ti = t;
+
         t += p.te;
         p.tr = t;
         s += p.tr;
         n++;
-        cout << "P" << p.id << " ejecuto en " << p.te 
-             << " ms. \tTR: " << p.tr << " ms" << endl;
+        
+       cout << "TR" << p.id << ":" << " ejecuta " << p.te << "ms y termina \t(TR: " << p.tr << ")\n";
     }
     if(n > 0) cout << "TR Promedio: " << (float)s / n << " ms\n";
 }
@@ -137,19 +157,18 @@ void Q::sort(int op) {
         flag = false;
         act = hd;
 
-        // Recorremos la lista hasta llegar al nodo donde terminamos la pasada anterior
         while (act->nx != ult) {
             bool swapNeeded = false;
 
-            // Condición para SJF: Ordenar de menor a mayor tiempo de ejecución
+            //condicion para sjf ordenar de menor a mayor tiempo de ejecución
             if (op == 1) {
                 if (act->p.te > act->nx->p.te) {
                     swapNeeded = true;
                 }
             }
-            // Condición para Prioridad: Asumiendo que un número menor = mayor prioridad
+            //condición para Prioridad mayor = mayor prioridad
             else if (op == 2) {
-                if (act->p.pr > act->nx->p.pr) {
+                if (act->p.pr < act->nx->p.pr) {
                     swapNeeded = true;
                 }
             }
@@ -164,14 +183,14 @@ void Q::sort(int op) {
 
             act = act->nx;
         }
-        // El último nodo evaluado es el mayor, ya no necesitamos revisarlo en la siguiente iteración
+        
         ult = act; 
         
     } while (flag);
 }
 
 void Sim::sjf() {
-    cout << "\nEJECUCIÓN SJF\n";
+    cout << "\nEJECUCIÓN SJF\n" << endl;
     Q aux = qb;   
     aux.sort(1);  
 
@@ -179,38 +198,51 @@ void Sim::sjf() {
 
     
     while (!aux.emp()) {
+        
         P p = aux.pop();
+        int ti = t;
+
         t += p.te;
         p.tr = t;
         s += p.tr;
         n++;
-        cout << "P" << p.id << " ejecuto en " << p.te 
-             << " ms. \tTR: " << p.tr << " ms" << endl;
+
+        cout << "TR" << p.id << ":"  << " ejecuta " << p.te << "ms y termina \t(TR: " << p.tr << ")\n";
     }
     if(n > 0) cout << "TR Promedio: " << (float)s / n << " ms\n";
 }
 
-void Sim::rr(int qt) {
-    cout << "\n--- EJECUCIÓN ROUND ROBIN\n";
-    cout << "(Quantum=" << qt << ") ---\n";
+void Sim::rr() {
+
+    if (qb.emp()) return;
+
     Q qx = qb; 
+    int qt = qx.qtm();
+
+    cout << "\nEJECUCIÓN ROUND ROBIN\n" << endl;
+    cout << "Quantum = " << qt << "\n" << endl;
+    
     int t = 0;
     int s = 0;
     int n = 0;
 
     while (!qx.emp()) {
+
         P c = qx.pop();
+        int ti = t;
 
         if (c.te <= qt) {
             t += c.te;
             c.tr = t;
             s += c.tr;
             n++;
-            cout << "[T:" << t << "] P" << c.id << " TERMINA. \t(TR: " << c.tr << ")\n";
+                   cout << "TR" << c.id << ":" << " ejecuta " << c.te << "ms y termina \t(TR: " << c.tr << ")\n";
+
         } else {
             t += qt;
             c.te -= qt;
-            cout << "[T:" << t << "] P" << c.id << " pausado. \t(Resta: " << c.te << ")\n";
+            // Imprime la pausa y el residuo
+            cout << "TR" << c.id << ":" << " ejecuta " << qt << "ms y es pausado \t(Resta: " << c.te << ")\n";
             qx.add(c);
         }
     }
@@ -224,28 +256,44 @@ void Sim::pri() {
         return;
     }
 
-    cout << "\nEJECUCIÓN POR PRIORIDAD\n";
-    
     Q aux = qb;   
-    aux.sort(2);  
+    int qt = aux.qtm();
 
+
+    cout << "\nEJECUCIÓN POR PRIORIDAD\n" << endl;
+    cout << "Quantum = " << qt << "\n" << endl;
+    
     int t = 0;   
     int s = 0;   
     int n = 0;    
 
+    aux.sort(2);
+
    
     while (!aux.emp()) {
+
         P p = aux.pop();
+        int ti = t;
         
+        if (p.te <= qt) {
         t += p.te;   
         p.tr = t;     
         s += p.tr;    
         n++;
         
-        cout << "P" << p.id << " (PR: " << p.pr << ")\t ejecuto en " << p.te 
-             << " ms. \tTR: " << p.tr << " ms" << endl;
+       cout << "TR" << p.id << ":" << " (PR: " << p.pr << ") ejecuta " << p.te << "ms y termina \t(TR: " << p.tr << ")\n";
+        }
+        else {
+            t += qt;
+            p.te -= qt;
+            cout << "TR" << p.id << ":" << " (PR: " << p.pr << ") ejecuta " << qt << "ms y es pausado \t(Resta: " << p.te << ")\n";
+
+                 aux.add(p);
+
+                 aux.sort(2);
+        }
     }
-    
+
     if (n > 0) {
         cout << "TR Promedio: " << (float)s / n << " ms\n";
     }

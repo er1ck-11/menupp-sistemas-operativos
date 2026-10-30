@@ -31,6 +31,7 @@ public:
     Q(const Q& other);               // Constructor de copia
     Q& operator=(const Q& other);    // Operador de asignación
     
+    int qtm();
     void sort(int op);
     void add(P x);                  
     P pop();                         
@@ -46,7 +47,7 @@ public:
     void cap();       
     void fifo();       //Algoritmo FIFO
     void sjf();       //Algoritmo SJF
-    void rr(int qt);  //Algoritmo Round Robin
+    void rr();  //Algoritmo Round Robin
     void pri();       //Algoritmo Prioridad
 };
 

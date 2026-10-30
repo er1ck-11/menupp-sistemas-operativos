@@ -8,7 +8,7 @@ int main() {
     int qt;    
 
     do {
-        cout << "\n--- PLANIFICADOR DE PROCESOS ---\n";
+        cout << "\nPLANIFICADOR DE PROCESOS\n";
         cout << "1. Captura procesos\n";
         cout << "2. FIFO\n";
         cout << "3. SJF\n";
@@ -29,9 +29,7 @@ int main() {
                 s.sjf();
                 break;
             case 4:
-                cout << "Ingresa el Quantum: ";
-                cin >> qt;
-                s.rr(qt);
+                s.rr();
                 break;
             case 5:
                 s.pri();
@@ -40,7 +38,7 @@ int main() {
                 cout << "Adios :)\n";
                 break;
             default:
-                cout << "Opción invalida.\n";
+                cout << "Opción invalida\n";
         }
     } while (op != 6);
 
